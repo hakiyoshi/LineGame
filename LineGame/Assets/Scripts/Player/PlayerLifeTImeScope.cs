@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -7,7 +7,7 @@ using VContainer.Unity;
 namespace Player
 {
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ÌˆË‘¶ŠÖŒW‚ğŠÇ—‚·‚é
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä¾å­˜é–¢ä¿‚ã‚’ç®¡ç†ã™ã‚‹
     /// </summary>
     public class PlayerLifeTImeScope : LifetimeScope
     {

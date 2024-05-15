@@ -1,12 +1,12 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace FIeld
 {
     /// <summary>
-    /// ƒtƒB[ƒ‹ƒhã‚É”z’u‚³‚ê‚é“_ƒIƒuƒWƒFƒNƒg
-    /// ƒvƒŒƒCƒ„[‚Ì‘«ê‚É‚È‚é
+    /// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ä¸Šã«é…ç½®ã•ã‚Œã‚‹ç‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¶³å ´ã«ãªã‚‹
     /// </summary>
     public class PointObject : MonoBehaviour
     {
@@ -18,9 +18,9 @@ namespace FIeld
         public const int RightLineObject = 3;
 
         /// <summary>
-        /// “_‚ÉÚ‘±‚³‚ê‚Ä‚¢‚éüƒIƒuƒWƒFƒNƒg‚Ìí—Ş
-        /// üƒIƒuƒWƒFƒNƒg‚ª‚È‚¢ê‡‚ÍNULL
-        /// 1:ã@2:‰E@3:‰º@4:¶
+        /// ç‚¹ã«æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ç·šã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç¨®é¡
+        /// ç·šã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒãªã„å ´åˆã¯NULL
+        /// 1:ä¸Šã€€2:å³ã€€3:ä¸‹ã€€4:å·¦
         /// </summary>
         [field: SerializeField]
         public LineObject[] lineObject { get; private set; } = new LineObject[MaxLineObjectCount];

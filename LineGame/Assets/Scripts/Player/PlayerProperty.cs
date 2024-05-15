@@ -1,4 +1,4 @@
-using FIeld;
+ï»¿using FIeld;
 using R3;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,31 +7,25 @@ using UnityEngine;
 namespace Player
 {
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚Ìî•ñ‚ğ•Û‚·‚éƒNƒ‰ƒX
-    /// VContainer‚©‚çƒAƒNƒZƒX‚·‚é
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æƒ…å ±ã‚’ä¿æŒã™ã‚‹ã‚¯ãƒ©ã‚¹
+    /// VContainerã‹ã‚‰ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹
     /// </summary>
-    public class PlayerProperty
+    public class PlayerProperty : MonoBehaviour
     {
-        private ReactiveProperty<PointObject> leftPoint = new();
+        [SerializeField]
+        private SerializableReactiveProperty<PointObject> leftPoint = new();
         public ReadOnlyReactiveProperty<PointObject> LeftPoint => leftPoint;
 
-        private ReactiveProperty<PointObject> rightPoint = new();
-        public ReadOnlyReactiveProperty<PointObject> RightPint => rightPoint;
+        [SerializeField]
+        private SerializableReactiveProperty<PointObject> rightPoint = new();
+        public ReadOnlyReactiveProperty<PointObject> RightPoint => rightPoint;
 
-        /// <summary>
-        /// ¶‘«‚É“_ƒIƒuƒWƒFƒNƒg‚ğƒZƒbƒg‚·‚é
-        /// </summary>
-        /// <param name="point"></param>
-        void SetLeftPoint(PointObject point)
+        public void SetLeftPoint(PointObject point)
         {
             leftPoint.Value = point;
         }
 
-        /// <summary>
-        /// ‰E‘«‚É“_ƒIƒuƒWƒFƒNƒg‚ğƒZƒbƒg‚·‚é
-        /// </summary>
-        /// <param name="point"></param>
-        void SetRightPint(PointObject point)
+        public void SetRIghtPoint(PointObject point)
         {
             rightPoint.Value = point;
         }

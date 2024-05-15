@@ -1,12 +1,12 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace FIeld
 {
     /// <summary>
-    /// ƒtƒB[ƒ‹ƒhã‚Éü‚ğ•\Œ»‚·‚éƒIƒuƒWƒFƒNƒg
-    /// Ú‘±‚³‚ê‚Ä‚¢‚é“_2‚Â‚ğŠÇ—‚µ‚Ä‚¢‚é
+    /// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ä¸Šã«ç·šã‚’è¡¨ç¾ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    /// æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ç‚¹2ã¤ã‚’ç®¡ç†ã—ã¦ã„ã‚‹
     /// </summary>
     public class LineObject : MonoBehaviour
     {
@@ -15,7 +15,7 @@ namespace FIeld
         const int MaxPointCount = 2;
 
         /// <summary>
-        /// ü‚ğ‚Â‚È‚®“_ƒIƒuƒWƒFƒNƒg
+        /// ç·šã‚’ã¤ãªãç‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
         /// </summary>
         [SerializeField] PointObject[] points = new PointObject[MaxPointCount];
 
@@ -26,7 +26,7 @@ namespace FIeld
                 Debug.Assert(lineRenderer != null);
             }
 
-            //TODO: ƒQ[ƒ€Às‚Éƒ‰ƒCƒ“‚ªˆø‚©‚ê‚Ä‚¢‚È‚©‚Á‚½‚ç‰º‚ÌƒRƒƒ“ƒg‚ğƒRƒƒ“ƒgƒAƒEƒg‚·‚é
+            //TODO: ã‚²ãƒ¼ãƒ å®Ÿè¡Œæ™‚ã«ãƒ©ã‚¤ãƒ³ãŒå¼•ã‹ã‚Œã¦ã„ãªã‹ã£ãŸã‚‰ä¸‹ã®ã‚³ãƒ¡ãƒ³ãƒˆã‚’ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆã™ã‚‹
             //DrawLine();
         }
 
