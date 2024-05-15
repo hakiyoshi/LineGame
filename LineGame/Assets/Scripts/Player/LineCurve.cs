@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.TerrainTools;
 using UnityEngine;
@@ -9,45 +9,52 @@ public class LineCurve : MonoBehaviour
     [SerializeField, Min(2)] int linePointCount = 2;
     [SerializeField] float lineHeight = 1.0f;
 
-    
+
 
     /// <summary>
-    /// ã•ûŒüƒxƒNƒgƒ‹
+    /// ä¸Šæ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«
     /// </summary>
     public Vector3 upVec { get; private set; }
 
     /// <summary>
-    /// ü‚Ì’†SÀ•W
+    /// ç·šã®ä¸­å¿ƒåº§æ¨™
     /// </summary>
-    public Vector3 centerPoint { 
-        get 
+    public Vector3 centerPoint
+    {
+        get
         {
             return lineRenderer.GetPosition(lineRenderer.positionCount / 2);
-        }  
+        }
     }
 
     private void Awake()
     {
-        
+
     }
 
     private void Start()
     {
-        
+
     }
 
     private void OnValidate()
     {
-        //Å‰‚ÆÅŒã‚Ìƒ|ƒCƒ“ƒg‚ğó‚¯æ‚é
+        if(lineRenderer == null)
+        {
+            Debug.LogError("LineRendererãŒã‚»ãƒƒãƒˆã•ã‚Œã¦ã„ã¾ã›ã‚“")
+            return;
+        }
+
+        //æœ€åˆã¨æœ€å¾Œã®ãƒã‚¤ãƒ³ãƒˆã‚’å—ã‘å–ã‚‹
         var startPoint = lineRenderer.GetPosition(0);
         var endPoint = lineRenderer.GetPosition(lineRenderer.positionCount - 1);
 
         var lineVec = endPoint - startPoint;
 
-        //ã•ûŒüƒxƒNƒgƒ‹ŒvZ
+        //ä¸Šæ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«è¨ˆç®—
         upVec = Vector3.Cross(lineVec.normalized, new Vector3(0.0f, 0.0f, 1.0f)).normalized * lineHeight;
 
-        //V‚µ‚¢À•Wƒ|ƒCƒ“ƒg‚ğ¶¬‚µ‚Ä“K‰‚·‚é
+        //æ–°ã—ã„åº§æ¨™ãƒã‚¤ãƒ³ãƒˆã‚’ç”Ÿæˆã—ã¦é©å¿œã™ã‚‹
         lineRenderer.positionCount = linePointCount;
 
         for (int i = 0; i < linePointCount; i++)
@@ -58,7 +65,7 @@ public class LineCurve : MonoBehaviour
     }
 
     /// <summary>
-    /// ˆø”t‚ÌˆÊ’u‚ÌÀ•W‚ğ‹‚ß‚é
+    /// å¼•æ•°tã®ä½ç½®ã®åº§æ¨™ã‚’æ±‚ã‚ã‚‹
     /// </summary>
     /// <returns></returns>
     Vector3 CulcPoint(Vector3 start, Vector3 end, Vector3 center, float time)
@@ -68,4 +75,3 @@ public class LineCurve : MonoBehaviour
         return Vector3.Lerp(q1, q2, time);
     }
 }
- 
