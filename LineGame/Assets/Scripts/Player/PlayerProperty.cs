@@ -14,17 +14,33 @@ namespace Player
     {
         [SerializeField]
         private SerializableReactiveProperty<PointObject> leftPoint = new();
+
+        /// <summary>
+        /// 左足のポイントオブジェクト
+        /// </summary>
         public ReadOnlyReactiveProperty<PointObject> LeftPoint => leftPoint;
 
         [SerializeField]
         private SerializableReactiveProperty<PointObject> rightPoint = new();
+
+        /// <summary>
+        /// 右足のポイントオブジェクト
+        /// </summary>
         public ReadOnlyReactiveProperty<PointObject> RightPoint => rightPoint;
 
+        /// <summary>
+        /// 左足のポイントオブジェクトをセットする
+        /// </summary>
+        /// <param name="point"></param>
         public void SetLeftPoint(PointObject point)
         {
             leftPoint.Value = point;
         }
 
+        /// <summary>
+        /// 右足のポイントオブジェクトをセットする
+        /// </summary>
+        /// <param name="point"></param>
         public void SetRightPoint(PointObject point)
         {
             rightPoint.Value = point;
