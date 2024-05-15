@@ -25,7 +25,7 @@ namespace Player
             leftPoint.Value = point;
         }
 
-        public void SetRIghtPoint(PointObject point)
+        public void SetRightPoint(PointObject point)
         {
             rightPoint.Value = point;
         }
