@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FIeld
+namespace Field
 {
     /// <summary>
     /// フィールド上に配置される点オブジェクト

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FIeld
+namespace Field
 {
     /// <summary>
     /// フィールド上に線を表現するオブジェクト
     /// 接続されている点2つを管理している
     /// </summary>
+    [RequireComponent(typeof(LineRenderer))]
     public class LineObject : MonoBehaviour
     {
         LineRenderer lineRenderer = null;
@@ -27,7 +28,7 @@ namespace FIeld
             }
 
             //TODO: ゲーム実行時にラインが引かれていなかったら下のコメントをコメントアウトする
-            //DrawLine();
+            DrawLine();
         }
 
         private void OnGUI()

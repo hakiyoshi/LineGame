@@ -1,27 +1,21 @@
-﻿using System.Collections;
+﻿using Player;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace Player
+public class PlayerLifeTimeScope : LifetimeScope
 {
-    /// <summary>
-    /// プレイヤーの依存関係を管理する
-    /// </summary>
-    public class PlayerLifeTimeScope : LifetimeScope
+    [SerializeField]
+    LineRenderer lineRenderer;
+
+    [SerializeField]
+    PlayerProperty playerProperty;
+
+    protected override void Configure(IContainerBuilder builder)
     {
-        [SerializeField] private PlayerProperty playerProperty = null;
-        [SerializeField] private LineRenderer lineRenderer = null;
-
-        protected override void Configure(IContainerBuilder builder)
-        {
-            Debug.Assert(playerProperty != null);
-            Debug.Assert(lineRenderer != null);
-
-            builder.RegisterComponent(playerProperty);
-            builder.RegisterComponent(lineRenderer);
-        }
+        builder.RegisterComponent(lineRenderer);
+        builder.RegisterComponent(playerProperty);
     }
-
 }
