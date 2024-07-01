@@ -1,15 +1,14 @@
 ﻿using Field;
-using NaughtyAttributes;
 using R3;
+using System;
+using Unity.Collections;
 using UnityEngine;
+using VContainer.Unity;
 
 namespace Player
 {
-    /// <summary>
-    /// プレイヤーの情報を保持するクラス
-    /// VContainerからアクセスする
-    /// </summary>
-    public class PlayerProperty : MonoBehaviour
+    [Serializable]
+    class PlayerProperty : IStartable
     {
         [field: SerializeField]
         public LineRenderer lineRenderer { get; private set; }
@@ -41,20 +40,19 @@ namespace Player
         public Vector3 RightPointPosition => rightPoint.Value.transform.position;
 
         /// <summary>
-        /// 上方向ベクトル
+        /// ベジェ曲線の曲線を制御する座標設定
         /// </summary>
-        [ReadOnly]
-        public Vector3 UpVec;
-
-        /// <summary>
-        /// プレイヤーの線のポイント数
-        /// </summary>
-        [SerializeField, Min(2)] int linePointCount = 2;
+        [SerializeField]
+        public Vector3 ControlPoint = Vector3.zero;
 
         /// <summary>
         /// 線の高さ
         /// </summary>
-        [SerializeField] float lineHeight = 1.0f;
+        [SerializeField]
+        public float LineHeight = 1.0f;
+
+        [SerializeField, Min(2)]
+        public int linePointCount = 15;
 
         /// <summary>
         /// 左足のポイント座標をセットする
@@ -74,37 +72,14 @@ namespace Player
             rightPoint.Value = point;
         }
 
-        private void Start()
+        void IStartable.Start()
         {
-            UpVec = (RightPointPosition - LeftPointPosition).normalized * lineHeight;
-        }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (lineRenderer == null || rightPoint.Value == null || leftPoint.Value == null)
-            {
-                return;
-            }
-
+            //ベジェ曲線の制御する座標初期化
             var vec = RightPointPosition - LeftPointPosition;
-
-            var up = Vector3.Cross(new Vector3(0.0f, 0.0f, 1.0f), vec).normalized * lineHeight;
+            var up = Vector3.Cross(new Vector3(0.0f, 0.0f, 1.0f), vec).normalized * LineHeight;
             var centerPoint = LeftPointPosition + (vec * 0.5f);
-
-            var controlPoint = centerPoint + up;
-
-            lineRenderer.positionCount = linePointCount;
-
-            for (int i = 0; i < linePointCount; i++)
-            {
-                var bezier = Utility.BezierCurve.Culc3PointCurve(LeftPointPosition, RightPointPosition, controlPoint, (float)i / (float)linePointCount);
-                lineRenderer.SetPosition(i,
-                    new Vector3(bezier.x, bezier.y, -1.0f)
-                    );
-            }
+            ControlPoint = centerPoint + up;
         }
-#endif
     }
 }
 
