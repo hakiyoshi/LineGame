@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Player
 {
     [Serializable]
-    class PlayerProperty : IStartable
+    class PlayerProperty
     {
         [field: SerializeField]
         public LineRenderer lineRenderer { get; private set; }
@@ -26,6 +26,12 @@ namespace Player
         /// </summary>
         public Vector3 LeftPointPosition => leftPoint.Value.transform.position;
 
+        /// <summary>
+        /// 左足の現在の座標
+        /// </summary>
+        [ReadOnly]
+        public Vector3 CurrentLeftPosition = Vector3.zero;
+
         [SerializeField]
         private SerializableReactiveProperty<PointObject> rightPoint = new();
 
@@ -38,6 +44,12 @@ namespace Player
         /// 右足のポイント座標
         /// </summary>
         public Vector3 RightPointPosition => rightPoint.Value.transform.position;
+
+        /// <summary>
+        /// 右足の現在の座標
+        /// </summary>
+        [ReadOnly]
+        public Vector3 CurrentRightPosition = Vector3.zero;
 
         /// <summary>
         /// ベジェ曲線の曲線を制御する座標設定
@@ -72,13 +84,12 @@ namespace Player
             rightPoint.Value = point;
         }
 
-        void IStartable.Start()
+        public Vector3 CulcDefaultControlPoint()
         {
-            //ベジェ曲線の制御する座標初期化
             var vec = RightPointPosition - LeftPointPosition;
             var up = Vector3.Cross(new Vector3(0.0f, 0.0f, 1.0f), vec).normalized * LineHeight;
             var centerPoint = LeftPointPosition + (vec * 0.5f);
-            ControlPoint = centerPoint + up;
+            return centerPoint + up;
         }
     }
 }

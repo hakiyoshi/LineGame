@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using Input;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,9 +11,11 @@ namespace Player
 {
     public class PlayerLifeTimeScope : LifetimeScope
     {
+        PlayerInputAction input;
+
         [Header("プレイヤー設定")]
         [SerializeField]
-        PlayerProperty property;
+        PlayerProperty property = null;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -18,6 +23,22 @@ namespace Player
             {
                 return property;
             }, Lifetime.Singleton);
+
+            builder.Register(_ =>
+            {
+                input = new();
+                return input;
+            }, Lifetime.Singleton);
+        }
+
+        private void Start()
+        {
+            property.CurrentLeftPosition = property.LeftPointPosition;
+            property.CurrentRightPosition = property.RightPointPosition;
+
+            property.ControlPoint = property.CulcDefaultControlPoint();
+
+            input.Player.Enable();
         }
 
 #if UNITY_EDITOR
@@ -42,8 +63,9 @@ namespace Player
 
             property.lineRenderer.positionCount = property.linePointCount;
 
-            property.lineRenderer.SetPosition(0, property.LeftPointPosition);
-            property.lineRenderer.SetPosition(property.linePointCount - 1, property.RightPointPosition);
+            //最初と最後だけ座標がおかしかったので直接設定をする
+            property.lineRenderer.SetPosition(0, new Vector3(property.LeftPointPosition.x, property.LeftPointPosition.y, -1.0f));
+            property.lineRenderer.SetPosition(property.linePointCount - 1, new Vector3(property.RightPointPosition.x, property.RightPointPosition.y, -1.0f));
 
             for (int i = 1; i < property.linePointCount - 1; i++)
             {
