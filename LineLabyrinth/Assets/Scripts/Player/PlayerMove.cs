@@ -1,5 +1,7 @@
-﻿using Input;
+﻿using Field;
+using Input;
 using Player;
+using R3;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +12,7 @@ public class PlayerMove : MonoBehaviour
 {
     PlayerProperty property;
     PlayerInputAction input;
+    Collider2D collider2d;
 
     /// <summary>
     /// コントロールポイントの中心からの移動量
@@ -23,15 +26,21 @@ public class PlayerMove : MonoBehaviour
     float moveDistance = 1.0f;
 
     [Inject]
-    void Construct(PlayerProperty property, PlayerInputAction input)
+    void Construct(PlayerProperty property, PlayerInputAction input, Collider2D collider)
     {
         this.property = property;
         this.input = input;
+        this.collider2d = collider;
     }
 
     private void Update()
     {
         MoveControlPoint();
+    }
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        MoveLeg(collider);
     }
 
     /// <summary>
@@ -44,5 +53,42 @@ public class PlayerMove : MonoBehaviour
         var defaultControlPoint = property.CulcDefaultControlPoint();
 
         property.ControlPoint = defaultControlPoint + new Vector3(moveInput.x, moveInput.y, 0.0f) * moveDistance;
+
+        collider2d.offset = Utility.BezierCurve.Culc3PointCurve(property.CurrentLeftPosition , property.CurrentRightPosition, property.ControlPoint, 0.5f);
+    }
+
+    /// <summary>
+    /// 足の現在座標の移動
+    /// </summary>
+    /// <param name="collider"></param>
+    void MoveLeg(Collider2D collider)
+    {
+        if (collider.TryGetComponent<PointObject>(out var pointObject))
+        {
+            //自分の足のポイントオブジェクトが同じ場合は無視する
+            if (property.LeftPoint.CurrentValue == pointObject || property.RightPoint.CurrentValue == pointObject)
+            {
+                return;
+            }
+
+            //近い足とポイントオブジェクトを入れ替える
+            if (Vector3.Distance(property.LeftPoint.CurrentValue.transform.position, pointObject.transform.position) <=
+                Vector3.Distance(property.RightPoint.CurrentValue.transform.position, pointObject.transform.position))
+            {
+                var leftPointObject = property.LeftPoint.CurrentValue;
+                property.SetLeftPoint(pointObject);
+                property.SetRightPoint(leftPointObject);
+            }
+            else
+            {
+                var rightPointObject = property.RightPoint.CurrentValue;
+                property.SetRightPoint(pointObject);
+                property.SetLeftPoint(rightPointObject);
+            }
+
+            //現在の足の座標を変更する
+            property.CurrentLeftPosition = property.LeftPointPosition;
+            property.CurrentRightPosition = property.RightPointPosition;
+        }
     }
 }

@@ -11,6 +11,9 @@ namespace Player
 {
     public class PlayerLifeTimeScope : LifetimeScope
     {
+        [SerializeField]
+        Collider2D collider2d = null;
+
         PlayerInputAction input;
 
         [Header("プレイヤー設定")]
@@ -29,6 +32,8 @@ namespace Player
                 input = new();
                 return input;
             }, Lifetime.Singleton);
+
+            builder.RegisterComponent(collider2d);
         }
 
         private void Start()
