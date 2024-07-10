@@ -22,7 +22,7 @@ namespace Field
         /// 線オブジェクトがない場合はNULL
         /// 1:上　2:右　3:下　4:左
         /// </summary>
-        [field: SerializeField]
+        [field: SerializeField, Header("1:上　2:右　3:下　4:左")]
         public LineObject[] lineObject { get; private set; } = new LineObject[MaxLineObjectCount];
     }
 }
