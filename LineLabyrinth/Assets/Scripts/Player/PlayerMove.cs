@@ -52,9 +52,12 @@ public class PlayerMove : MonoBehaviour
 
         var defaultControlPoint = property.CulcDefaultControlPoint();
 
-        property.ControlPoint = defaultControlPoint + new Vector3(moveInput.x, moveInput.y, 0.0f) * moveDistance;
+        var move = new Vector3(moveInput.x, moveInput.y, 0.0f) * moveDistance;
 
-        collider2d.offset = Utility.BezierCurve.Culc3PointCurve(property.CurrentLeftPosition , property.CurrentRightPosition, property.ControlPoint, 0.5f);
+        property.ControlPoint = defaultControlPoint + move;
+
+        //移動判定の当たり判定のオフセットを移動させる
+        collider2d.offset = property.CurrentLeftPosition + ((property.CurrentRightPosition - property.CurrentLeftPosition) * 0.5f) + move;
     }
 
     /// <summary>
