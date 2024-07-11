@@ -1,4 +1,5 @@
-﻿using Field;
+﻿using DG.Tweening;
+using Field;
 using Input;
 using Player;
 using R3;
@@ -24,6 +25,15 @@ public class PlayerMove : MonoBehaviour
     /// </summary>
     [SerializeField]
     float moveDistance = 1.0f;
+
+    [SerializeField]
+    float controllPointMoveSpeed = 0.2f;
+
+    [SerializeField]
+    float moveLegSeconds = 0.2f;
+
+    Tweener leftLegMove = null;
+    Tweener rightLegMove = null;
 
     [Inject]
     void Construct(PlayerProperty property, PlayerInputAction input, Collider2D collider)
@@ -54,10 +64,12 @@ public class PlayerMove : MonoBehaviour
 
         var move = new Vector3(moveInput.x, moveInput.y, 0.0f) * moveDistance;
 
-        property.ControlPoint = defaultControlPoint + move;
+        //指定の座標まで徐々に移動させる
+        DOVirtual.Vector3(property.ControlPoint, defaultControlPoint + move, controllPointMoveSpeed, x => property.ControlPoint = x);
 
         //移動判定の当たり判定のオフセットを移動させる
-        collider2d.offset = property.CurrentLeftPosition + ((property.CurrentRightPosition - property.CurrentLeftPosition) * 0.5f) + move;
+        var offsetDefaultPosition = property.CurrentLeftPosition + ((property.CurrentRightPosition - property.CurrentLeftPosition) * 0.5f);
+        DOVirtual.Vector3(collider2d.offset, offsetDefaultPosition + move, controllPointMoveSpeed, x => collider2d.offset = x);
     }
 
     /// <summary>
@@ -70,6 +82,11 @@ public class PlayerMove : MonoBehaviour
         {
             //自分の足のポイントオブジェクトが同じ場合は無視する
             if (property.LeftPoint.CurrentValue == pointObject || property.RightPoint.CurrentValue == pointObject)
+            {
+                return;
+            }
+
+            if (IsHitWall(pointObject))
             {
                 return;
             }
@@ -89,9 +106,18 @@ public class PlayerMove : MonoBehaviour
                 property.SetLeftPoint(rightPointObject);
             }
 
+            //複数のDoTweenが動かないようにその場で止める
+            leftLegMove?.Complete();
+            rightLegMove?.Complete();
+
             //現在の足の座標を変更する
-            property.CurrentLeftPosition = property.LeftPointPosition;
-            property.CurrentRightPosition = property.RightPointPosition;
+            DOVirtual.Vector3(property.CurrentLeftPosition, property.LeftPointPosition, moveLegSeconds, x => property.CurrentLeftPosition = x);
+            DOVirtual.Vector3(property.CurrentRightPosition, property.RightPointPosition, moveLegSeconds, x => property.CurrentRightPosition = x);
         }
+    }
+
+    bool IsHitWall(PointObject pointObject)
+    {
+        return false;
     }
 }
