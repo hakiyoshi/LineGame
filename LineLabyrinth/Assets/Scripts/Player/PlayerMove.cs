@@ -43,6 +43,11 @@ public class PlayerMove : MonoBehaviour
         this.collider2d = collider;
     }
 
+    private void Start()
+    {
+        collider2d.offset = CulcOffsetDefaultPosition();
+    }
+
     private void Update()
     {
         MoveControlPoint();
@@ -68,8 +73,12 @@ public class PlayerMove : MonoBehaviour
         DOVirtual.Vector3(property.ControlPoint, defaultControlPoint + move, controllPointMoveSpeed, x => property.ControlPoint = x);
 
         //移動判定の当たり判定のオフセットを移動させる
-        var offsetDefaultPosition = property.CurrentLeftPosition + ((property.CurrentRightPosition - property.CurrentLeftPosition) * 0.5f);
-        DOVirtual.Vector3(collider2d.offset, offsetDefaultPosition + move, controllPointMoveSpeed, x => collider2d.offset = x);
+        DOVirtual.Vector3(collider2d.offset, CulcOffsetDefaultPosition() + move, controllPointMoveSpeed, x => collider2d.offset = x);
+    }
+
+    Vector3 CulcOffsetDefaultPosition()
+    {
+        return property.CurrentLeftPosition + ((property.CurrentRightPosition - property.CurrentLeftPosition) * 0.5f);
     }
 
     /// <summary>
