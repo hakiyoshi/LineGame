@@ -19,7 +19,8 @@ namespace Field
         /// <summary>
         /// 線をつなぐ点オブジェクト
         /// </summary>
-        [SerializeField] PointObject[] points = new PointObject[MaxPointCount];
+        [field: SerializeField]
+        public PointObject[] points { get; private set; } = new PointObject[MaxPointCount];
 
         private void Awake()
         {

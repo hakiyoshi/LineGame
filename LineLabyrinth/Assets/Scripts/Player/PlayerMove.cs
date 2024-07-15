@@ -3,6 +3,7 @@ using Field;
 using Input;
 using Player;
 using R3;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -87,31 +88,36 @@ public class PlayerMove : MonoBehaviour
     /// <param name="collider"></param>
     void MoveLeg(Collider2D collider)
     {
-        if (collider.TryGetComponent<PointObject>(out var pointObject))
+        if (collider.TryGetComponent<PointObject>(out var targetPoint))
         {
             //自分の足のポイントオブジェクトが同じ場合は無視する
-            if (property.LeftPoint.CurrentValue == pointObject || property.RightPoint.CurrentValue == pointObject)
-            {
-                return;
-            }
-
-            if (IsHitWall(pointObject))
+            if (property.LeftPoint.CurrentValue == targetPoint || property.RightPoint.CurrentValue == targetPoint)
             {
                 return;
             }
 
             //近い足とポイントオブジェクトを入れ替える
-            if (Vector3.Distance(property.LeftPoint.CurrentValue.transform.position, pointObject.transform.position) <=
-                Vector3.Distance(property.RightPoint.CurrentValue.transform.position, pointObject.transform.position))
+            if (Vector3.Distance(property.LeftPoint.CurrentValue.transform.position, targetPoint.transform.position) <=
+                Vector3.Distance(property.RightPoint.CurrentValue.transform.position, targetPoint.transform.position))
             {
+                if(IsHitWall(targetPoint, property.LeftPoint.CurrentValue))
+                {
+                    return;
+                }
+
                 var leftPointObject = property.LeftPoint.CurrentValue;
-                property.SetLeftPoint(pointObject);
+                property.SetLeftPoint(targetPoint);
                 property.SetRightPoint(leftPointObject);
             }
             else
             {
+                if (IsHitWall(targetPoint, property.RightPoint.CurrentValue))
+                {
+                    return;
+                }
+
                 var rightPointObject = property.RightPoint.CurrentValue;
-                property.SetRightPoint(pointObject);
+                property.SetRightPoint(targetPoint);
                 property.SetLeftPoint(rightPointObject);
             }
 
@@ -125,8 +131,38 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    bool IsHitWall(PointObject pointObject)
+    bool IsHitWall(PointObject targetPoint, PointObject legPoint)
     {
+        var controlPointVec = (targetPoint.transform.position - property.ControlPoint).normalized;
+
+        foreach (var lineObject in legPoint.lineObject)
+        {
+            //移動先が線とつながっていない場合は無視する
+            if(lineObject == null)
+            {
+                continue;
+            }
+
+            var wallVec = lineObject.points[0].transform.position - lineObject.points[1].transform.position;
+            var targetPointVec = (legPoint.transform.position - targetPoint.transform.position).normalized;
+            var controlPointCross = Vector3.Cross(wallVec, controlPointVec).normalized;
+            var targetCross = Vector3.Cross(wallVec, targetPointVec).normalized;
+
+            Debug.Log($"{lineObject.gameObject.name} コントロール{controlPointCross.z} ターゲット{Mathf.Sign(targetCross.z)}");
+
+            //壁のベクトルと移動先ベクトルが同じ場合無視する
+            if(Mathf.Approximately(targetCross.z, 0.0f))
+            {
+                continue;
+            }
+
+            //壁のベクトルを挟んで左右にある場合間に壁があると判断する
+            if(Mathf.Sign(controlPointCross.z) !=  Mathf.Sign(targetCross.z))
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 }
