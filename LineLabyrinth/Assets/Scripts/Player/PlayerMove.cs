@@ -6,6 +6,7 @@ using R3;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
@@ -35,6 +36,9 @@ public class PlayerMove : MonoBehaviour
 
     Tweener leftLegMove = null;
     Tweener rightLegMove = null;
+
+    Tweener controlPointMove = null;
+    Tweener colliderMove = null;
 
     [Inject]
     void Construct(PlayerProperty property, PlayerInputAction input, Collider2D collider)
@@ -70,11 +74,14 @@ public class PlayerMove : MonoBehaviour
 
         var move = new Vector3(moveInput.x, moveInput.y, 0.0f) * moveDistance;
 
+        controlPointMove?.Kill();
+        colliderMove?.Kill();
+
         //指定の座標まで徐々に移動させる
-        DOVirtual.Vector3(property.ControlPoint, defaultControlPoint + move, controllPointMoveSpeed, x => property.ControlPoint = x);
+        controlPointMove = DOVirtual.Vector3(property.ControlPoint, defaultControlPoint + move, controllPointMoveSpeed, x => property.ControlPoint = x);
 
         //移動判定の当たり判定のオフセットを移動させる
-        DOVirtual.Vector3(collider2d.offset, CulcOffsetDefaultPosition() + move, controllPointMoveSpeed, x => collider2d.offset = x);
+        colliderMove = DOVirtual.Vector3(collider2d.offset, CulcOffsetDefaultPosition() + move, controllPointMoveSpeed, x => collider2d.offset = x);
     }
 
     Vector3 CulcOffsetDefaultPosition()
@@ -88,6 +95,12 @@ public class PlayerMove : MonoBehaviour
     /// <param name="collider"></param>
     void MoveLeg(Collider2D collider)
     {
+        //移動中は移動判定をしない
+        if((leftLegMove?.active ?? false) || (rightLegMove?.active ?? false))
+        {
+            return;
+        }
+
         if (collider.TryGetComponent<PointObject>(out var targetPoint))
         {
             //自分の足のポイントオブジェクトが同じ場合は無視する
@@ -126,41 +139,92 @@ public class PlayerMove : MonoBehaviour
             rightLegMove?.Complete();
 
             //現在の足の座標を変更する
-            DOVirtual.Vector3(property.CurrentLeftPosition, property.LeftPointPosition, moveLegSeconds, x => property.CurrentLeftPosition = x);
-            DOVirtual.Vector3(property.CurrentRightPosition, property.RightPointPosition, moveLegSeconds, x => property.CurrentRightPosition = x);
+            leftLegMove = DOVirtual.Vector3(property.CurrentLeftPosition, property.LeftPointPosition, moveLegSeconds, x => property.CurrentLeftPosition = x);
+            rightLegMove = DOVirtual.Vector3(property.CurrentRightPosition, property.RightPointPosition, moveLegSeconds, x => property.CurrentRightPosition = x);
         }
     }
 
+    /// <summary>
+    /// 全方向の壁判定
+    /// </summary>
+    /// <param name="targetPoint">移動先のポイント</param>
+    /// <param name="legPoint">足のポイント</param>
+    /// <returns>壁に阻まれてたらTrue</returns>
     bool IsHitWall(PointObject targetPoint, PointObject legPoint)
     {
-        var controlPointVec = (targetPoint.transform.position - property.ControlPoint).normalized;
-
-        foreach (var lineObject in legPoint.lineObject)
+        for(int i = 0; i < legPoint.lineObject.Length; i++)
         {
-            //移動先が線とつながっていない場合は無視する
-            if(lineObject == null)
+            if (IsHitWall(legPoint.lineObject[i], targetPoint, legPoint))
             {
-                continue;
+                //連続して隣接している壁が2か所空いていた場合壁に阻まれていない判定にする
+                int rightCount = 0;
+                int leftCount = 0;
+                const int roopCount = 2;
+                for (int j = 1; j < roopCount + 1; j++)
+                {
+                    var rightSideLine = legPoint.lineObject[((i - j) + legPoint.lineObject.Length) % legPoint.lineObject.Length];
+                    var leftSideLine = legPoint.lineObject[(i + j) % legPoint.lineObject.Length];
+
+                    //壁が無い場合カウントを増やす
+                    if (rightSideLine == null)
+                    {
+                        rightCount++;
+                    }
+
+                    if(leftSideLine == null)
+                    {
+                        leftCount++;
+                    }
+                }
+
+                //壁が無い場合はヒットしていない判定にする
+                if(rightCount >= roopCount || leftCount >= roopCount)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
+        }
 
-            var wallVec = lineObject.points[0].transform.position - lineObject.points[1].transform.position;
-            var targetPointVec = (legPoint.transform.position - targetPoint.transform.position).normalized;
-            var controlPointCross = Vector3.Cross(wallVec, controlPointVec).normalized;
-            var targetCross = Vector3.Cross(wallVec, targetPointVec).normalized;
+        return false;
+    }
 
-            Debug.Log($"{lineObject.gameObject.name} コントロール{controlPointCross.z} ターゲット{Mathf.Sign(targetCross.z)}");
+    /// <summary>
+    /// 指定された壁との判定
+    /// </summary>
+    /// <param name="lineObject">判定する壁</param>
+    /// <param name="legPoint">足のポイント</param>
+    /// <param name="targetPoint">移動先のポイント</param>
+    /// <returns>最短距離で壁に阻まれてたらTrue</returns>
+    bool IsHitWall(LineObject lineObject, PointObject targetPoint, PointObject legPoint)
+    {
+        //移動先が線とつながっていない場合は無視する
+        if (lineObject == null)
+        {
+            return false;
+        }
 
-            //壁のベクトルと移動先ベクトルが同じ場合無視する
-            if(Mathf.Approximately(targetCross.z, 0.0f))
-            {
-                continue;
-            }
+        var controlPointVec = (targetPoint.transform.position - property.ControlPoint).normalized;
+        var wallVec = lineObject.points[0].transform.position - lineObject.points[1].transform.position;
+        var targetPointVec = (legPoint.transform.position - targetPoint.transform.position).normalized;
+        var controlPointCross = Vector3.Cross(wallVec, controlPointVec).normalized;
+        var targetCross = Vector3.Cross(wallVec, targetPointVec).normalized;
 
-            //壁のベクトルを挟んで左右にある場合間に壁があると判断する
-            if(Mathf.Sign(controlPointCross.z) !=  Mathf.Sign(targetCross.z))
-            {
-                return true;
-            }
+        Debug.Log($"ターゲット{targetPoint.name} 壁{lineObject.name} コントロール{controlPointCross.z} ターゲット{Mathf.Sign(targetCross.z)}");
+
+        //壁のベクトルと移動先ベクトルが同じ場合無視する
+        if (Mathf.Approximately(targetCross.z, 0.0f))
+        {
+            return false;
+        }
+
+        //壁のベクトルを挟んで左右にある場合間に壁があると判断する
+        if (Mathf.Sign(controlPointCross.z) != Mathf.Sign(targetCross.z))
+        {
+            return true;
         }
 
         return false;

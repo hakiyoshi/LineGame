@@ -14,7 +14,7 @@ namespace Field
     {
         LineRenderer lineRenderer = null;
 
-        const int MaxPointCount = 2;
+        public const int MaxPointCount = 2;
 
         /// <summary>
         /// 線をつなぐ点オブジェクト
@@ -33,7 +33,7 @@ namespace Field
             DrawLine();
         }
 
-        private void DrawLine()
+        public void DrawLine()
         {
             if (TryGetComponent(out LineRenderer lineRenderer) && points.Length == MaxPointCount)
             {
