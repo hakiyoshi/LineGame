@@ -1,9 +1,5 @@
 ﻿using Input;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 
@@ -22,10 +18,7 @@ namespace Player
 
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register(_ =>
-            {
-                return property;
-            }, Lifetime.Singleton);
+            builder.Register(_ => property, Lifetime.Singleton);
 
             builder.Register(_ =>
             {
@@ -54,7 +47,7 @@ namespace Player
                 return;
             }
 
-            if (property.lineRenderer == null || property.RightPoint.CurrentValue == null || property.LeftPoint.CurrentValue == null)
+            if (property.PlayerLineRenderer == null || property.RightPoint.CurrentValue == null || property.LeftPoint.CurrentValue == null)
             {
                 return;
             }
@@ -66,16 +59,16 @@ namespace Player
 
             var controlPoint = centerPoint + up;
 
-            property.lineRenderer.positionCount = property.linePointCount;
+            property.PlayerLineRenderer.positionCount = property.LinePointCount;
 
             //最初と最後だけ座標がおかしかったので直接設定をする
-            property.lineRenderer.SetPosition(0, new Vector3(property.LeftPointPosition.x, property.LeftPointPosition.y, -1.0f));
-            property.lineRenderer.SetPosition(property.linePointCount - 1, new Vector3(property.RightPointPosition.x, property.RightPointPosition.y, -1.0f));
+            property.PlayerLineRenderer.SetPosition(0, new Vector3(property.LeftPointPosition.x, property.LeftPointPosition.y, -1.0f));
+            property.PlayerLineRenderer.SetPosition(property.LinePointCount - 1, new Vector3(property.RightPointPosition.x, property.RightPointPosition.y, -1.0f));
 
-            for (int i = 1; i < property.linePointCount - 1; i++)
+            for (int i = 1; i < property.LinePointCount - 1; i++)
             {
-                var bezier = Utility.BezierCurve.Culc3PointCurve(property.LeftPointPosition, property.RightPointPosition, controlPoint, (float)i / (float)property.linePointCount);
-                property.lineRenderer.SetPosition(i,
+                var bezier = Utility.BezierCurve.Culc3PointCurve(property.LeftPointPosition, property.RightPointPosition, controlPoint, (float)i / property.LinePointCount);
+                property.PlayerLineRenderer.SetPosition(i,
                     new Vector3(bezier.x, bezier.y, -1.0f)
                     );
             }

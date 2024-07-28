@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Field
 {
@@ -23,7 +21,7 @@ namespace Field
         /// 1:上　2:右　3:下　4:左
         /// </summary>
         [field: SerializeField, Header("1:上　2:右　3:下　4:左")]
-        public LineObject[] lineObject { get; private set; } = new LineObject[MaxLineObjectCount];
+        public LineObject[] LineObject { get; private set; } = new LineObject[MaxLineObjectCount];
 
 #if UNITY_EDITOR
         [Header("線接続")]
@@ -42,9 +40,9 @@ namespace Field
         {
             if(joinPoint != null)
             {
-                if (lineObject == null || lineObject.Length < MaxLineObjectCount)
+                if (LineObject == null || LineObject.Length < MaxLineObjectCount)
                 {
-                    lineObject = new LineObject[MaxLineObjectCount];
+                    LineObject = new LineObject[MaxLineObjectCount];
                 }
 
                 if (Mathf.Approximately(joinPoint.transform.position.x, transform.position.x))
@@ -52,14 +50,14 @@ namespace Field
                     //上
                     if (joinPoint.transform.position.y < transform.position.y)
                     {
-                        CreateLineObject(joinPoint, out var obj, out var line);
-                        lineObject[PointObject.DownLineObject] = line;
+                        CreateLineObject(joinPoint, out GameObject _, out var line);
+                        LineObject[PointObject.DownLineObject] = line;
                     }
                     //下
                     else if (joinPoint.transform.position.y >= transform.position.y)
                     {
-                        CreateLineObject(joinPoint, out var obj, out var line);
-                        lineObject[PointObject.UpLineObject] = line;
+                        CreateLineObject(joinPoint, out GameObject _, out var line);
+                        LineObject[PointObject.UpLineObject] = line;
                     }
                 }
                 else if (Mathf.Approximately(joinPoint.transform.position.y, transform.position.y))
@@ -67,14 +65,14 @@ namespace Field
                     //左
                     if (joinPoint.transform.position.x < transform.position.x)
                     {
-                        CreateLineObject(joinPoint, out var obj, out var line);
-                        lineObject[PointObject.RightLineObject] = line;
+                        CreateLineObject(joinPoint, out GameObject _, out var line);
+                        LineObject[PointObject.RightLineObject] = line;
                     }
                     //右
                     else if (joinPoint.transform.position.x >= transform.position.x)
                     {
-                        CreateLineObject(joinPoint, out var obj, out var line);
-                        lineObject[PointObject.LeftLineObject] = line;
+                        CreateLineObject(joinPoint, out GameObject _, out var line);
+                        LineObject[PointObject.LeftLineObject] = line;
                     }
                 }
             }
@@ -92,8 +90,8 @@ namespace Field
                 Debug.LogError("LineObjectが設定されていません");
                 return;
             }
-            line.points[0] = this;
-            line.points[1] = joinPoint;
+            line.Points[0] = this;
+            line.Points[1] = joinPoint;
             line.DrawLine();
             index++;
         }

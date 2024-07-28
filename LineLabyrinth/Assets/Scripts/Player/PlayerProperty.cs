@@ -3,7 +3,6 @@ using R3;
 using System;
 using Unity.Collections;
 using UnityEngine;
-using VContainer.Unity;
 
 namespace Player
 {
@@ -11,7 +10,7 @@ namespace Player
     class PlayerProperty
     {
         [field: SerializeField]
-        public LineRenderer lineRenderer { get; private set; }
+        public LineRenderer PlayerLineRenderer { get; private set; }
 
         [SerializeField]
         private SerializableReactiveProperty<PointObject> leftPoint = new();
@@ -64,7 +63,7 @@ namespace Player
         public float LineHeight = 1.0f;
 
         [SerializeField, Min(2)]
-        public int linePointCount = 15;
+        public int LinePointCount = 15;
 
         /// <summary>
         /// 左足のポイント座標をセットする
@@ -86,9 +85,14 @@ namespace Player
 
         public Vector3 CulcDefaultControlPoint()
         {
-            var vec = RightPointPosition - LeftPointPosition;
+            return CulcDefaultControlPoint(LeftPoint.CurrentValue, RightPoint.CurrentValue);
+        }
+
+        public Vector3 CulcDefaultControlPoint(PointObject leftPoint, PointObject rightPoint)
+        {
+            var vec = rightPoint.transform.position - leftPoint.transform.position;
             var up = Vector3.Cross(new Vector3(0.0f, 0.0f, 1.0f), vec).normalized * LineHeight;
-            var centerPoint = LeftPointPosition + (vec * 0.5f);
+            var centerPoint = leftPoint.transform.position + (vec * 0.5f);
             return centerPoint + up;
         }
     }

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using UnityEngine;
 
@@ -14,13 +13,13 @@ namespace Field
     {
         LineRenderer lineRenderer = null;
 
-        public const int MaxPointCount = 2;
+        const int MaxPointCount = 2;
 
         /// <summary>
         /// 線をつなぐ点オブジェクト
         /// </summary>
         [field: SerializeField]
-        public PointObject[] points { get; private set; } = new PointObject[MaxPointCount];
+        public PointObject[] Points { get; private set; } = new PointObject[MaxPointCount];
 
         private void Awake()
         {
@@ -28,41 +27,40 @@ namespace Field
             {
                 Debug.Assert(lineRenderer != null);
             }
-
-            //TODO: ゲーム実行時にラインが引かれていなかったら下のコメントをコメントアウトする
+            
             DrawLine();
         }
 
         public void DrawLine()
         {
-            if (TryGetComponent(out LineRenderer lineRenderer) && points.Length == MaxPointCount)
+            if (TryGetComponent(out LineRenderer line) && Points.Length == MaxPointCount)
             {
-                if (points.Any(x => x == null) || points.Distinct().Count() == 1)
+                if (Points.Any(x => x == null) || Points.Distinct().Count() == 1)
                 {
                     return;
                 }
 
-                lineRenderer.enabled = true;
-                lineRenderer.positionCount = MaxPointCount;
-                for (int i = 0; i < lineRenderer.positionCount; i++)
+                line.enabled = true;
+                line.positionCount = MaxPointCount;
+                for (int i = 0; i <  line.positionCount; i++)
                 {
-                    var pointPosition = points[i].transform.position;
+                    var pointPosition = Points[i].transform.position;
 
-                    lineRenderer.SetPosition(i, pointPosition);
+                     line.SetPosition(i, pointPosition);
 
-                    var sidePointPosition = points[(i + 1) % MaxPointCount].transform.position;
+                    var sidePointPosition = Points[(i + 1) % MaxPointCount].transform.position;
 
                     if(Mathf.Approximately(sidePointPosition.x, pointPosition.x))
                     {
                         //上
                         if (sidePointPosition.y < pointPosition.y)
                         {
-                            points[i].lineObject[PointObject.DownLineObject] = this;
+                            Points[i].LineObject[PointObject.DownLineObject] = this;
                         }
                         //下
                         else if (sidePointPosition.y >= pointPosition.y)
                         {
-                            points[i].lineObject[PointObject.UpLineObject] = this;
+                            Points[i].LineObject[PointObject.UpLineObject] = this;
                         }
                     }
                     else if(Mathf.Approximately(sidePointPosition.y, pointPosition.y))
@@ -70,16 +68,32 @@ namespace Field
                         //左
                         if (sidePointPosition.x < pointPosition.x)
                         {
-                            points[i].lineObject[PointObject.RightLineObject] = this;
+                            Points[i].LineObject[PointObject.RightLineObject] = this;
                         }
                         //右
                         else if (sidePointPosition.x >= pointPosition.x)
                         {
-                            points[i].lineObject[PointObject.LeftLineObject] = this;
+                            Points[i].LineObject[PointObject.LeftLineObject] = this;
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 指定したポイントから伸びる壁のベクトルを計算する
+        /// </summary>
+        /// <param name="standardPoint">基準のポイント</param>
+        /// <returns>指定したポイントから伸びる壁のベクトルを返す。
+        /// 指定したポイントが見つからない場合は適当なポイントを基準にした壁のベクトルを返す</returns>
+        public Vector3 CulcWallVec(PointObject standardPoint)
+        {
+            var index = Array.IndexOf(Points, standardPoint);
+            if(index == -1)
+            {
+                return Points[0].transform.position - Points[1].transform.position;
+            }
+            return Points[(index + 1) % Points.Length].transform.position - Points[index].transform.position;
         }
 
         private void OnValidate()
